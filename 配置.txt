@@ -1,0 +1,64 @@
+postgresql端口：5432
+postgresql密码：245011058
+
+
+django超级用户：
+Username (leave blank to use 'qdx'): pluto
+Email address: 2936038547@qq.com
+Password: django2025
+
+
+
+
+2.17√
+
+python manage.py makemigrations
+python manage.py migrate
+
+下一步建议
+1. 验证数据库表结构
+连接到 PostgreSQL 数据库，检查 gis 应用对应的表是否生成：
+
+bash
+python manage.py dbshell  # 进入数据库命令行
+在 PostgreSQL 中执行：
+
+sql
+\dt                         -- 列出所有表
+SELECT * FROM geometry_columns;  -- 检查 PostGIS 扩展是否生效
+2. 创建超级用户
+运行以下命令创建 Django 管理员账户：
+
+bash
+python manage.py createsuperuser
+3. 启动开发服务器
+运行开发服务器测试应用：
+
+bash
+python manage.py runserver
+访问 http://localhost:8000/admin 登录后台，确认 gis 应用的模型是否可见。
+
+4. 测试 GIS 功能
+在代码中尝试创建一个包含地理字段（如 PointField）的模型实例，验证 GIS 功能是否正常：
+
+python
+# 示例：在 Django Shell 中测试
+python manage.py shell
+python
+from gis.models import GisFeature
+from django.contrib.gis.geos import Point
+
+# 创建一个点（经度, 纬度）
+point = Point(116.3975, 39.9087)
+feature = GisFeature.objects.create(name="测试地点", geom=point,properties={})
+print(feature.geom.wkt)  # 输出：POINT (116.3975 39.9087)
+关键检查点
+PostGIS 扩展已启用
+确保在 PostgreSQL 中执行过 CREATE EXTENSION postgis;。
+
+GDAL 配置正确
+运行以下命令验证 GDAL 是否被 Django 识别：
+
+bash
+python manage.py check
+如果输出 System check identified no issues (0 silenced). 表示环境正常。
